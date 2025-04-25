@@ -9,7 +9,83 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      app_factors: {
+        Row: {
+          app_id: string | null
+          created_at: string | null
+          description: string
+          id: string
+          name: string
+          present: boolean
+        }
+        Insert: {
+          app_id?: string | null
+          created_at?: string | null
+          description: string
+          id?: string
+          name: string
+          present?: boolean
+        }
+        Update: {
+          app_id?: string | null
+          created_at?: string | null
+          description?: string
+          id?: string
+          name?: string
+          present?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "app_factors_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "apps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      apps: {
+        Row: {
+          category: string
+          created_at: string | null
+          description: string | null
+          developer: string
+          icon: string | null
+          id: string
+          last_updated: string | null
+          name: string
+          rating: Database["public"]["Enums"]["drug_rating"]
+          store: Database["public"]["Enums"]["app_store"]
+          store_app_id: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          description?: string | null
+          developer: string
+          icon?: string | null
+          id?: string
+          last_updated?: string | null
+          name: string
+          rating: Database["public"]["Enums"]["drug_rating"]
+          store: Database["public"]["Enums"]["app_store"]
+          store_app_id?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          developer?: string
+          icon?: string | null
+          id?: string
+          last_updated?: string | null
+          name?: string
+          rating?: Database["public"]["Enums"]["drug_rating"]
+          store?: Database["public"]["Enums"]["app_store"]
+          store_app_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +94,13 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      app_store: "Apple App Store" | "Google Play" | "Both"
+      drug_rating:
+        | "Tool"
+        | "Mostly Tool"
+        | "Bits of Both"
+        | "Mostly Drug"
+        | "Drug"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +215,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_store: ["Apple App Store", "Google Play", "Both"],
+      drug_rating: [
+        "Tool",
+        "Mostly Tool",
+        "Bits of Both",
+        "Mostly Drug",
+        "Drug",
+      ],
+    },
   },
 } as const
