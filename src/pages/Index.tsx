@@ -1,49 +1,30 @@
-
-import React, { useState, useEffect } from 'react';
-import { App, AppStore, DrugRating, sampleApps } from '@/lib/appData';
+import React, { useState } from 'react';
+import { App, AppStore, DrugRating } from '@/lib/appData';
 import AppCard from '@/components/AppCard';
 import AppDetail from '@/components/AppDetail';
 import SearchBar from '@/components/SearchBar';
 import FilterBar from '@/components/FilterBar';
+import { useQuery } from '@tanstack/react-query';
+import { getApps, searchApps } from '@/lib/supabase';
+import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
-  const [apps, setApps] = useState<App[]>(sampleApps);
-  const [filteredApps, setFilteredApps] = useState<App[]>(sampleApps);
   const [selectedApp, setSelectedApp] = useState<App | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStore, setSelectedStore] = useState<AppStore | 'All'>('All');
   const [selectedRating, setSelectedRating] = useState<DrugRating | 'All'>('All');
+  const { toast } = useToast();
 
-  useEffect(() => {
-    filterApps();
-  }, [searchTerm, selectedStore, selectedRating]);
+  const { data: apps = [], isLoading, error } = useQuery({
+    queryKey: ['apps', searchTerm],
+    queryFn: () => searchTerm ? searchApps(searchTerm) : getApps(),
+  });
 
-  const filterApps = () => {
-    let results = [...apps];
-
-    // Filter by search term
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      results = results.filter(
-        app => app.name.toLowerCase().includes(term) || 
-               app.description.toLowerCase().includes(term) ||
-               app.category.toLowerCase().includes(term) ||
-               app.developer.toLowerCase().includes(term)
-      );
-    }
-
-    // Filter by store
-    if (selectedStore !== 'All') {
-      results = results.filter(app => app.store === selectedStore);
-    }
-
-    // Filter by rating
-    if (selectedRating !== 'All') {
-      results = results.filter(app => app.rating === selectedRating);
-    }
-
-    setFilteredApps(results);
-  };
+  const filteredApps = apps.filter(app => {
+    if (selectedStore !== 'All' && app.store !== selectedStore) return false;
+    if (selectedRating !== 'All' && app.rating !== selectedRating) return false;
+    return true;
+  });
 
   const handleAppClick = (app: App) => {
     setSelectedApp(app);
@@ -53,6 +34,14 @@ const Index = () => {
   const handleBackClick = () => {
     setSelectedApp(null);
   };
+
+  if (error) {
+    toast({
+      variant: "destructive",
+      title: "Error",
+      description: "Failed to load apps. Please try again later.",
+    });
+  }
 
   return (
     <div className="container max-w-screen-xl py-8 px-4 sm:px-6">
@@ -73,7 +62,7 @@ const Index = () => {
             <SearchBar value={searchTerm} onChange={setSearchTerm} />
             <div className="flex justify-end">
               <p className="text-sm text-gray-500 self-end">
-                Showing {filteredApps.length} {filteredApps.length === 1 ? 'app' : 'apps'}
+                {isLoading ? 'Loading...' : `Showing ${filteredApps.length} ${filteredApps.length === 1 ? 'app' : 'apps'}`}
               </p>
             </div>
             <div className="sm:col-span-2">
@@ -86,7 +75,11 @@ const Index = () => {
             </div>
           </div>
 
-          {filteredApps.length > 0 ? (
+          {isLoading ? (
+            <div className="text-center py-12">
+              <h3 className="text-xl font-medium text-gray-900">Loading apps...</h3>
+            </div>
+          ) : filteredApps.length > 0 ? (
             <div className="app-grid">
               {filteredApps.map((app) => (
                 <AppCard key={app.id} app={app} onClick={() => handleAppClick(app)} />
