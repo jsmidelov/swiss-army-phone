@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,14 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Custom colors for Swiss Army Phone
+				sap: {
+					tool: '#2A9D8F',
+					drug: '#E76F51',
+					neutral: '#F8F9FA',
+					dark: '#264653',
+					light: '#E9ECEF',
 				}
 			},
 			borderRadius: {
