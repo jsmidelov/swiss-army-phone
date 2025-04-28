@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { AppStore, DrugRating } from '@/lib/appData';
 import { Button } from '@/components/ui/button';
@@ -26,9 +25,9 @@ const FilterBar: React.FC<FilterBarProps> = ({
   const ratings: (DrugRating | 'All')[] = [
     'All',
     'Tool',
-    'Mostly Tool',
-    'Bits of Both',
-    'Mostly Drug',
+    'Sugar',
+    'Coffee',
+    'Alcohol',
     'Drug'
   ];
 

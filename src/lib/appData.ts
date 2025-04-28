@@ -1,11 +1,10 @@
-
 export type AppStore = 'Apple App Store' | 'Google Play' | 'Both';
 
 export type DrugRating = 
   | 'Tool' 
-  | 'Mostly Tool' 
-  | 'Bits of Both' 
-  | 'Mostly Drug' 
+  | 'Sugar'
+  | 'Coffee'
+  | 'Alcohol'
   | 'Drug';
 
 export interface DrugFactor {

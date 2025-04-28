@@ -46,6 +46,7 @@ export type Database = {
       }
       apps: {
         Row: {
+          business_model: string | null
           category: string
           created_at: string | null
           description: string | null
@@ -59,6 +60,7 @@ export type Database = {
           store_app_id: string | null
         }
         Insert: {
+          business_model?: string | null
           category: string
           created_at?: string | null
           description?: string | null
@@ -72,6 +74,7 @@ export type Database = {
           store_app_id?: string | null
         }
         Update: {
+          business_model?: string | null
           category?: string
           created_at?: string | null
           description?: string | null
@@ -86,6 +89,45 @@ export type Database = {
         }
         Relationships: []
       }
+      apps_backup: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          description: string | null
+          developer: string | null
+          icon: string | null
+          id: string | null
+          last_updated: string | null
+          name: string | null
+          store: Database["public"]["Enums"]["app_store"] | null
+          store_app_id: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          developer?: string | null
+          icon?: string | null
+          id?: string | null
+          last_updated?: string | null
+          name?: string | null
+          store?: Database["public"]["Enums"]["app_store"] | null
+          store_app_id?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          developer?: string | null
+          icon?: string | null
+          id?: string | null
+          last_updated?: string | null
+          name?: string | null
+          store?: Database["public"]["Enums"]["app_store"] | null
+          store_app_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -95,12 +137,7 @@ export type Database = {
     }
     Enums: {
       app_store: "Apple App Store" | "Google Play" | "Both"
-      drug_rating:
-        | "Tool"
-        | "Mostly Tool"
-        | "Bits of Both"
-        | "Mostly Drug"
-        | "Drug"
+      drug_rating: "Tool" | "Sugar" | "Coffee" | "Alcohol" | "Drug"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -217,13 +254,7 @@ export const Constants = {
   public: {
     Enums: {
       app_store: ["Apple App Store", "Google Play", "Both"],
-      drug_rating: [
-        "Tool",
-        "Mostly Tool",
-        "Bits of Both",
-        "Mostly Drug",
-        "Drug",
-      ],
+      drug_rating: ["Tool", "Sugar", "Coffee", "Alcohol", "Drug"],
     },
   },
 } as const
