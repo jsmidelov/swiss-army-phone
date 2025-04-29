@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { DrugRating } from '@/lib/appData';
-import { Tool, Lollipop, Coffee, Wine, Cigarette } from 'lucide-react';
+import { Hammer, Lollipop, Coffee, Wine, Cigarette } from 'lucide-react';
 
 interface DrugRatingIconProps {
   rating: DrugRating;
@@ -25,7 +25,7 @@ const DrugRatingIcon: React.FC<DrugRatingIconProps> = ({
 
   switch (rating) {
     case 'Tool':
-      return <Tool {...iconProps} className={`${iconProps.className} text-sap-tool`} />;
+      return <Hammer {...iconProps} className={`${iconProps.className} text-sap-tool`} />;
     case 'Sugar':
       return <Lollipop {...iconProps} className={`${iconProps.className} text-pink-400`} />;
     case 'Coffee':
