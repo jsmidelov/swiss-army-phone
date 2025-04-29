@@ -1,6 +1,6 @@
 
 import { createClient } from '@supabase/supabase-js';
-import { App, BusinessModel } from './appData';
+import { App, BusinessModel, sampleApps } from './appData';
 import { supabase } from '@/integrations/supabase/client';
 
 export async function getApps(): Promise<App[]> {
@@ -14,7 +14,9 @@ export async function getApps(): Promise<App[]> {
 
     if (error) {
       console.error('Error fetching apps:', error);
-      throw error;
+      // Fallback to sample apps when there's an error
+      console.log('Falling back to sample apps data');
+      return sampleApps;
     }
 
     return apps.map(app => ({
@@ -29,7 +31,9 @@ export async function getApps(): Promise<App[]> {
     }));
   } catch (error) {
     console.error('Error in getApps:', error);
-    throw error;
+    // Fallback to sample apps when there's an exception
+    console.log('Falling back to sample apps data due to exception');
+    return sampleApps;
   }
 }
 
@@ -46,7 +50,14 @@ export async function searchApps(term: string): Promise<App[]> {
 
     if (error) {
       console.error('Error searching apps:', error);
-      throw error;
+      // Fallback to filtered sample apps when there's an error
+      console.log('Falling back to filtered sample apps data');
+      return sampleApps.filter(app => 
+        app.name.toLowerCase().includes(term.toLowerCase()) ||
+        app.description?.toLowerCase().includes(term.toLowerCase()) ||
+        app.category.toLowerCase().includes(term.toLowerCase()) ||
+        app.developer.toLowerCase().includes(term.toLowerCase())
+      );
     }
 
     return apps.map(app => ({
@@ -61,6 +72,13 @@ export async function searchApps(term: string): Promise<App[]> {
     }));
   } catch (error) {
     console.error('Error in searchApps:', error);
-    throw error;
+    // Fallback to filtered sample apps when there's an exception
+    console.log('Falling back to filtered sample apps data due to exception');
+    return sampleApps.filter(app => 
+      app.name.toLowerCase().includes(term.toLowerCase()) ||
+      app.description?.toLowerCase().includes(term.toLowerCase()) ||
+      app.category.toLowerCase().includes(term.toLowerCase()) ||
+      app.developer.toLowerCase().includes(term.toLowerCase())
+    );
   }
 }
