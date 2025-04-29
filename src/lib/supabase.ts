@@ -1,6 +1,6 @@
 
 import { createClient } from '@supabase/supabase-js';
-import { App } from './appData';
+import { App, BusinessModel } from './appData';
 import { supabase } from '@/integrations/supabase/client';
 
 export async function getApps(): Promise<App[]> {
@@ -19,7 +19,7 @@ export async function getApps(): Promise<App[]> {
 
     return apps.map(app => ({
       ...app,
-      businessModel: app.business_model,
+      businessModel: app.business_model as BusinessModel | undefined,
       factors: app.factors.map((factor: any) => ({
         name: factor.name,
         description: factor.description,
@@ -51,7 +51,7 @@ export async function searchApps(term: string): Promise<App[]> {
 
     return apps.map(app => ({
       ...app,
-      businessModel: app.business_model,
+      businessModel: app.business_model as BusinessModel | undefined,
       factors: app.factors.map((factor: any) => ({
         name: factor.name,
         description: factor.description,
