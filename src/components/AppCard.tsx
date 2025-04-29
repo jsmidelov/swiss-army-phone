@@ -2,6 +2,7 @@
 import React from 'react';
 import { App } from '@/lib/appData';
 import DrugScaleIndicator from './DrugScaleIndicator';
+import DrugRatingIcon from './DrugRatingIcon';
 import { Card } from '@/components/ui/card';
 
 interface AppCardProps {
@@ -42,7 +43,10 @@ const AppCard: React.FC<AppCardProps> = ({ app, onClick }) => {
             )}
           </div>
           <div className="flex-1">
-            <h3 className="text-base font-medium leading-tight truncate">{app.name}</h3>
+            <div className="flex items-center">
+              <h3 className="text-base font-medium leading-tight truncate mr-2">{app.name}</h3>
+              <DrugRatingIcon rating={app.rating} size="sm" />
+            </div>
             <p className="text-xs text-gray-500 truncate">{app.category}</p>
           </div>
         </div>

@@ -19,11 +19,13 @@ export async function getApps(): Promise<App[]> {
 
     return apps.map(app => ({
       ...app,
+      businessModel: app.business_model,
       factors: app.factors.map((factor: any) => ({
         name: factor.name,
         description: factor.description,
         present: factor.present
-      }))
+      })),
+      lastUpdated: app.last_updated ? new Date(app.last_updated) : undefined
     }));
   } catch (error) {
     console.error('Error in getApps:', error);
@@ -49,11 +51,13 @@ export async function searchApps(term: string): Promise<App[]> {
 
     return apps.map(app => ({
       ...app,
+      businessModel: app.business_model,
       factors: app.factors.map((factor: any) => ({
         name: factor.name,
         description: factor.description,
         present: factor.present
-      }))
+      })),
+      lastUpdated: app.last_updated ? new Date(app.last_updated) : undefined
     }));
   } catch (error) {
     console.error('Error in searchApps:', error);

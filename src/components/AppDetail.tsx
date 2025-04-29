@@ -2,6 +2,7 @@
 import React from 'react';
 import { App, DrugFactor } from '@/lib/appData';
 import DrugScaleIndicator from './DrugScaleIndicator';
+import DrugRatingIcon from './DrugRatingIcon';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { CheckCircle, XCircle, ArrowLeft } from 'lucide-react';
@@ -78,16 +79,25 @@ const AppDetail: React.FC<AppDetailProps> = ({ app, onBack }) => {
         
         <div className="flex-grow">
           <div className="flex justify-between items-start mb-1">
-            <h1 className="text-2xl font-bold">{app.name}</h1>
+            <div className="flex items-center">
+              <h1 className="text-2xl font-bold mr-3">{app.name}</h1>
+              <DrugRatingIcon rating={app.rating} size="lg" />
+            </div>
             <DrugScaleIndicator rating={app.rating} size="lg" />
           </div>
           
           <p className="text-gray-500 mb-2">{app.developer}</p>
-          <p className="mb-4">{app.description}</p>
+          <p className="mb-2">{app.description}</p>
           
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-gray-500 mb-2">
             {getStoreLabel(app.store)}
           </div>
+
+          {app.businessModel && (
+            <div className="text-sm font-medium">
+              Business Model: <span className="text-gray-700">{app.businessModel}</span>
+            </div>
+          )}
         </div>
       </div>
 

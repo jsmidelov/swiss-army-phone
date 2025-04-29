@@ -1,3 +1,4 @@
+
 export type AppStore = 'Apple App Store' | 'Google Play' | 'Both';
 
 export type DrugRating = 
@@ -6,6 +7,14 @@ export type DrugRating =
   | 'Coffee'
   | 'Alcohol'
   | 'Drug';
+
+export type BusinessModel =
+  | 'Pay Once'
+  | 'Subscription'
+  | 'Freemium'
+  | 'Advertising'
+  | 'In-App Purchases'
+  | 'Unknown';
 
 export interface DrugFactor {
   name: string;
@@ -22,7 +31,9 @@ export interface App {
   description: string;
   category: string;
   developer: string;
+  businessModel?: BusinessModel;
   factors: DrugFactor[];
+  lastUpdated?: Date;
 }
 
 export const drugFactors = [
@@ -57,6 +68,14 @@ export const drugFactors = [
   {
     name: "Gamification Elements",
     description: "Points, badges, and streaks that create compulsive engagement loops."
+  },
+  {
+    name: "Business Model: Advertising",
+    description: "App makes money by showing ads, incentivizing longer usage times to increase ad impressions."
+  },
+  {
+    name: "Business Model: In-App Purchases",
+    description: "App uses psychological triggers to encourage impulse purchases."
   }
 ];
 
@@ -70,6 +89,7 @@ export const sampleApps: App[] = [
     description: "Photo and video sharing social networking service",
     category: "Social",
     developer: "Meta",
+    businessModel: "Advertising",
     factors: [
       { name: "Infinite Scroll", description: drugFactors[0].description, present: true },
       { name: "Variable Rewards", description: drugFactors[1].description, present: true },
@@ -77,7 +97,8 @@ export const sampleApps: App[] = [
       { name: "FOMO Triggers", description: drugFactors[3].description, present: true },
       { name: "Autoplay", description: drugFactors[5].description, present: true },
       { name: "Push Notifications", description: drugFactors[6].description, present: true },
-      { name: "Gamification Elements", description: drugFactors[7].description, present: false }
+      { name: "Gamification Elements", description: drugFactors[7].description, present: false },
+      { name: "Business Model: Advertising", description: drugFactors[8].description, present: true }
     ]
   },
   {
@@ -89,6 +110,7 @@ export const sampleApps: App[] = [
     description: "All-in-one workspace for notes, tasks, wikis, and databases",
     category: "Productivity",
     developer: "Notion Labs",
+    businessModel: "Subscription",
     factors: [
       { name: "Infinite Scroll", description: drugFactors[0].description, present: false },
       { name: "Variable Rewards", description: drugFactors[1].description, present: false },
@@ -96,7 +118,8 @@ export const sampleApps: App[] = [
       { name: "FOMO Triggers", description: drugFactors[3].description, present: false },
       { name: "Artificial Urgency", description: drugFactors[4].description, present: false },
       { name: "Autoplay", description: drugFactors[5].description, present: false },
-      { name: "Push Notifications", description: drugFactors[6].description, present: false }
+      { name: "Push Notifications", description: drugFactors[6].description, present: false },
+      { name: "Business Model: Advertising", description: drugFactors[8].description, present: false }
     ]
   },
   {
@@ -108,12 +131,14 @@ export const sampleApps: App[] = [
     description: "Short-form, video-sharing app for entertainment",
     category: "Entertainment",
     developer: "ByteDance",
+    businessModel: "Advertising",
     factors: [
       { name: "Infinite Scroll", description: drugFactors[0].description, present: true },
       { name: "Variable Rewards", description: drugFactors[1].description, present: true },
       { name: "Social Validation", description: drugFactors[2].description, present: true },
       { name: "Autoplay", description: drugFactors[5].description, present: true },
-      { name: "Push Notifications", description: drugFactors[6].description, present: true }
+      { name: "Push Notifications", description: drugFactors[6].description, present: true },
+      { name: "Business Model: Advertising", description: drugFactors[8].description, present: true }
     ]
   },
   {
@@ -125,11 +150,13 @@ export const sampleApps: App[] = [
     description: "Language learning platform",
     category: "Education",
     developer: "Duolingo, Inc.",
+    businessModel: "Freemium",
     factors: [
       { name: "Variable Rewards", description: drugFactors[1].description, present: true },
       { name: "Artificial Urgency", description: drugFactors[4].description, present: true },
       { name: "Push Notifications", description: drugFactors[6].description, present: true },
-      { name: "Gamification Elements", description: drugFactors[7].description, present: true }
+      { name: "Gamification Elements", description: drugFactors[7].description, present: true },
+      { name: "Business Model: In-App Purchases", description: drugFactors[9].description, present: true }
     ]
   },
   {
@@ -141,6 +168,7 @@ export const sampleApps: App[] = [
     description: "Meditation and mindfulness app",
     category: "Health & Fitness",
     developer: "Headspace Inc.",
+    businessModel: "Subscription",
     factors: [
       { name: "Push Notifications", description: drugFactors[6].description, present: true },
       { name: "Gamification Elements", description: drugFactors[7].description, present: true }
@@ -155,11 +183,13 @@ export const sampleApps: App[] = [
     description: "Video sharing platform",
     category: "Entertainment",
     developer: "Google LLC",
+    businessModel: "Advertising",
     factors: [
       { name: "Infinite Scroll", description: drugFactors[0].description, present: true },
       { name: "Variable Rewards", description: drugFactors[1].description, present: true },
       { name: "Autoplay", description: drugFactors[5].description, present: true },
-      { name: "Push Notifications", description: drugFactors[6].description, present: true }
+      { name: "Push Notifications", description: drugFactors[6].description, present: true },
+      { name: "Business Model: Advertising", description: drugFactors[8].description, present: true }
     ]
   },
   {
@@ -171,6 +201,7 @@ export const sampleApps: App[] = [
     description: "Calendar and scheduling app",
     category: "Productivity",
     developer: "Apple Inc.",
+    businessModel: "Pay Once",
     factors: [
       { name: "Push Notifications", description: drugFactors[6].description, present: true }
     ]
@@ -184,11 +215,13 @@ export const sampleApps: App[] = [
     description: "Match-three puzzle game",
     category: "Games",
     developer: "King",
+    businessModel: "In-App Purchases",
     factors: [
       { name: "Variable Rewards", description: drugFactors[1].description, present: true },
       { name: "Artificial Urgency", description: drugFactors[4].description, present: true },
       { name: "Push Notifications", description: drugFactors[6].description, present: true },
-      { name: "Gamification Elements", description: drugFactors[7].description, present: true }
+      { name: "Gamification Elements", description: drugFactors[7].description, present: true },
+      { name: "Business Model: In-App Purchases", description: drugFactors[9].description, present: true }
     ]
   },
   {
@@ -200,8 +233,10 @@ export const sampleApps: App[] = [
     description: "Email service developed by Google",
     category: "Productivity",
     developer: "Google LLC",
+    businessModel: "Advertising",
     factors: [
-      { name: "Push Notifications", description: drugFactors[6].description, present: true }
+      { name: "Push Notifications", description: drugFactors[6].description, present: true },
+      { name: "Business Model: Advertising", description: drugFactors[8].description, present: true }
     ]
   },
   {
@@ -213,6 +248,7 @@ export const sampleApps: App[] = [
     description: "Business communication platform",
     category: "Business",
     developer: "Slack Technologies",
+    businessModel: "Subscription",
     factors: [
       { name: "FOMO Triggers", description: drugFactors[3].description, present: true },
       { name: "Push Notifications", description: drugFactors[6].description, present: true }
@@ -227,6 +263,7 @@ export const sampleApps: App[] = [
     description: "Subscription-based streaming service",
     category: "Entertainment",
     developer: "Netflix, Inc.",
+    businessModel: "Subscription",
     factors: [
       { name: "Autoplay", description: drugFactors[5].description, present: true },
       { name: "Infinite Scroll", description: drugFactors[0].description, present: true },
@@ -242,6 +279,7 @@ export const sampleApps: App[] = [
     description: "Stay focused, be present",
     category: "Productivity",
     developer: "Seekrtech",
+    businessModel: "Pay Once",
     factors: [
       { name: "Gamification Elements", description: drugFactors[7].description, present: true }
     ]
