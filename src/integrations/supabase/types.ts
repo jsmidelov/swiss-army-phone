@@ -9,41 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      app_factors: {
-        Row: {
-          app_id: string | null
-          created_at: string | null
-          description: string
-          id: string
-          name: string
-          present: boolean
-        }
-        Insert: {
-          app_id?: string | null
-          created_at?: string | null
-          description: string
-          id?: string
-          name: string
-          present?: boolean
-        }
-        Update: {
-          app_id?: string | null
-          created_at?: string | null
-          description?: string
-          id?: string
-          name?: string
-          present?: boolean
-        }
-        Relationships: [
-          {
-            foreignKeyName: "app_factors_app_id_fkey"
-            columns: ["app_id"]
-            isOneToOne: false
-            referencedRelation: "apps"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       apps: {
         Row: {
           business_model: string | null
@@ -89,42 +54,60 @@ export type Database = {
         }
         Relationships: []
       }
-      apps_backup: {
+      apps_rating_factors: {
         Row: {
-          category: string | null
-          created_at: string | null
-          description: string | null
-          developer: string | null
-          icon: string | null
-          id: string | null
-          last_updated: string | null
-          name: string | null
-          store: Database["public"]["Enums"]["app_store"] | null
-          store_app_id: string | null
+          app_id: string
+          is_present: boolean | null
+          rating_id: string
         }
         Insert: {
-          category?: string | null
-          created_at?: string | null
-          description?: string | null
-          developer?: string | null
-          icon?: string | null
-          id?: string | null
-          last_updated?: string | null
-          name?: string | null
-          store?: Database["public"]["Enums"]["app_store"] | null
-          store_app_id?: string | null
+          app_id: string
+          is_present?: boolean | null
+          rating_id: string
         }
         Update: {
-          category?: string | null
+          app_id?: string
+          is_present?: boolean | null
+          rating_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "apps_rating_factors_app_id_fkey"
+            columns: ["app_id"]
+            isOneToOne: false
+            referencedRelation: "apps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "apps_rating_factors_rating_id_fkey"
+            columns: ["rating_id"]
+            isOneToOne: false
+            referencedRelation: "rating_factors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rating_factors: {
+        Row: {
+          created_at: string | null
+          description: string
+          id: string
+          name: string
+          weight: number
+        }
+        Insert: {
           created_at?: string | null
-          description?: string | null
-          developer?: string | null
-          icon?: string | null
-          id?: string | null
-          last_updated?: string | null
-          name?: string | null
-          store?: Database["public"]["Enums"]["app_store"] | null
-          store_app_id?: string | null
+          description: string
+          id?: string
+          name: string
+          weight?: number
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          id?: string
+          name?: string
+          weight?: number
         }
         Relationships: []
       }
@@ -133,7 +116,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_app_details_by_id: {
+        Args: { app_id: string }
+        Returns: {
+          id: string
+          name: string
+          icon: string
+          store: string
+          rating: string
+          description: string
+          category: string
+          developer: string
+          businessmodel: string
+          factors: Json[]
+        }[]
+      }
     }
     Enums: {
       app_store: "Apple App Store" | "Google Play" | "Both"
