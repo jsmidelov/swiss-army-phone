@@ -35,12 +35,19 @@ const AppCard = ({ app, onClick }: AppCardProps) => {
             <h3 className="font-medium text-base text-gray-900 truncate group-hover:text-blue-600">{app.name}</h3>
             <p className="text-xs text-gray-500 truncate">{app.developer}</p>
           </div>
+          <div className="flex items-center">
+            <DrugRatingIcon rating={app.rating} size="lg" />
+          </div>
         </div>
         
         <CardContent className="flex-1 p-0">
           <div className="flex items-center justify-between mb-2">
             <div className="text-xs text-gray-500">{app.category}</div>
-            <div className="text-xs text-gray-400">{app.store}</div>
+            <div className="text-xs text-gray-400">{
+              app.store === 'Apple App Store' ? '🍎 App Store' : 
+              app.store === 'Google Play' ? '🤖 Google Play' : 
+              app.store === 'Both' ? 'Both' : 'All'}
+            </div>
           </div>
           
           <div className="h-12 overflow-hidden">
@@ -53,22 +60,15 @@ const AppCard = ({ app, onClick }: AppCardProps) => {
         </CardContent>
         
         <CardFooter className="pt-4 pb-0 px-0 mt-2 flex items-center justify-between">
-          <div className="flex items-center">
-            <DrugRatingIcon rating={app.rating} size="small" />
-            <span className="text-sm ml-1 font-medium text-gray-700">{app.rating}</span>
-          </div>
-          
-          <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-            <UpdateAppDialog app={app} />
-          </div>
+            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+              <UpdateAppDialog app={app} />
+            </div>
+          {isAppOutdated() && (
+            <div className="text-xs text-amber-600 mt-2 flex items-center">
+              Data may be outdated
+            </div>
+          )}
         </CardFooter>
-        
-        {isAppOutdated() && (
-          <div className="text-xs text-amber-600 mt-2 flex items-center">
-            <span className="inline-block h-2 w-2 rounded-full bg-amber-500 mr-1"></span>
-            Data may be outdated
-          </div>
-        )}
       </div>
     </Card>
   );
