@@ -6,7 +6,6 @@ import DrugScaleIndicator from './DrugScaleIndicator';
 import DrugRatingIcon from './DrugRatingIcon';
 import { ArrowLeft, Check, X } from 'lucide-react';
 import UpdateAppDialog from './UpdateAppDialog';
-import BusinessModelInfo from './BusinessModelInfo';
 
 interface AppDetailProps {
   app: App;
@@ -93,13 +92,6 @@ const AppDetail = ({ app, onBack }: AppDetailProps) => {
             <h3 className="text-lg font-medium mb-3">Rating on the Tool-to-Drug Scale</h3>
             <DrugScaleIndicator rating={app.rating} />
           </div>
-          
-          {app.businessModel && (
-            <div className="mb-6">
-              <h3 className="text-lg font-medium mb-2">Business Model</h3>
-              <BusinessModelInfo businessModel={app.businessModel} />
-            </div>
-          )}
           
           <div>
             <h3 className="text-lg font-medium mb-2">Digital Wellbeing Factors</h3>
