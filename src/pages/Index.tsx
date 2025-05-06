@@ -60,7 +60,7 @@ const Index = () => {
           <span className="text-sap-tool">Swiss</span> Army <span className="text-sap-drug">Phone</span>
         </h1>
         <p className="text-gray-600 max-w-2xl">
-          Discover which apps are useful tools and which are designed to be addictive. Rate apps on our tool-to-drug scale to make informed choices about what's on your device.
+          Your devices offers apps for all kinds of things, but many apps use you more than you use them. Discover how much your apps are designed to hook you, and turn your doom scroller into a digital swiss army knife.
         </p>
       </header>
 

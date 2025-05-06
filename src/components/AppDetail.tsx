@@ -69,7 +69,7 @@ const AppDetail = ({ app, onBack }: AppDetailProps) => {
           </div>
           
           <div className="flex flex-col items-center">
-            <DrugRatingIcon rating={app.rating} size="large" />
+            <DrugRatingIcon rating={app.rating} size="lg" />
             <span className="mt-1 font-bold text-lg">{app.rating}</span>
           </div>
         </div>
@@ -89,7 +89,7 @@ const AppDetail = ({ app, onBack }: AppDetailProps) => {
           )}
           
           <div className="mb-8">
-            <h3 className="text-lg font-medium mb-3">Rating on the Tool-to-Drug Scale</h3>
+            <h3 className="text-lg font-medium mb-3">Addictiveness Rating</h3>
             <DrugScaleIndicator rating={app.rating} />
           </div>
           

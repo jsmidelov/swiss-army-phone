@@ -43,8 +43,8 @@ const FilterBar: React.FC<FilterBarProps> = ({
               size="sm"
               onClick={() => onStoreChange(store)}
             >
-              {store === 'Apple App Store' ? '🍎 Apple' : 
-               store === 'Google Play' ? '🤖 Google' : 
+              {store === 'Apple App Store' ? '🍎 App Store' : 
+               store === 'Google Play' ? '🤖 Google Play' : 
                store === 'Both' ? 'Both' : 'All'}
             </Button>
           ))}
