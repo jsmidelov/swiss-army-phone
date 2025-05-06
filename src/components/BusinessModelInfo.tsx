@@ -22,7 +22,7 @@ const BusinessModelInfo = ({ businessModel }: BusinessModelInfoProps) => {
       case 'Pay Once':
         return {
           risk: 'Low',
-          description: 'You pay once upfront and own the app. These apps typically have fewer addictive design elements since they don't need to maximize engagement after purchase.'
+          description: 'You pay once upfront and own the app. These apps typically have fewer addictive design elements since they don\'t need to maximize engagement after purchase.'
         };
       case 'Subscription':
         return {
@@ -37,7 +37,7 @@ const BusinessModelInfo = ({ businessModel }: BusinessModelInfoProps) => {
       case 'Advertising':
         return {
           risk: 'High',
-          description: 'These apps make money by showing you ads. They're incentivized to maximize your screen time and engagement to show more ads.'
+          description: 'These apps make money by showing you ads. They\'re incentivized to maximize your screen time and engagement to show more ads.'
         };
       case 'In-App Purchases':
         return {
@@ -47,7 +47,7 @@ const BusinessModelInfo = ({ businessModel }: BusinessModelInfoProps) => {
       default:
         return {
           risk: 'Unknown',
-          description: 'The business model for this app is not known or doesn't fit standard categories.'
+          description: 'The business model for this app is not known or doesn\'t fit standard categories.'
         };
     }
   };
