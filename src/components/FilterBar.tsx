@@ -52,7 +52,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
       </div>
       
       <div className="space-y-2">
-        <h3 className="text-sm font-medium text-gray-700">Tool-to-Drug Scale</h3>
+        <h3 className="text-sm font-medium text-gray-700">Addictiveness Rating</h3>
         <div className="flex flex-wrap gap-2">
           {ratings.map((rating) => (
             <Button
