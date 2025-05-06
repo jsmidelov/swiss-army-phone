@@ -5,28 +5,52 @@ import { supabase } from '@/integrations/supabase/client';
 
 export async function getApps(): Promise<App[]> {
   try {
+    // First get all apps
     const { data: apps, error } = await supabase
       .from('apps')
-      .select(`
-        *,
-        factors:app_factors(*)
-      `);
+      .select('*');
 
     if (error) {
       console.error('Error fetching apps:', error);
       throw error;
     }
 
-    return apps.map(app => ({
-      ...app,
-      businessModel: app.business_model as BusinessModel | undefined,
-      factors: app.factors.map((factor: any) => ({
-        name: factor.name,
-        description: factor.description,
-        present: factor.present
-      })),
-      lastUpdated: app.last_updated ? new Date(app.last_updated) : undefined
+    // For each app, get its factors
+    const appsWithFactors = await Promise.all(apps.map(async (app) => {
+      const { data: factorData, error: factorError } = await supabase
+        .from('apps_rating_factors')
+        .select(`
+          rating_id,
+          is_present,
+          rating_factors(name, description)
+        `)
+        .eq('app_id', app.id);
+
+      if (factorError) {
+        console.error(`Error fetching factors for app ${app.id}:`, factorError);
+        return {
+          ...app,
+          businessModel: app.business_model as BusinessModel | undefined,
+          factors: [],
+          lastUpdated: app.last_updated ? new Date(app.last_updated) : undefined
+        };
+      }
+
+      const factors = factorData.map(factor => ({
+        name: factor.rating_factors.name,
+        description: factor.rating_factors.description,
+        present: factor.is_present
+      }));
+
+      return {
+        ...app,
+        businessModel: app.business_model as BusinessModel | undefined,
+        factors,
+        lastUpdated: app.last_updated ? new Date(app.last_updated) : undefined
+      };
     }));
+
+    return appsWithFactors;
   } catch (error) {
     console.error('Error in getApps:', error);
     throw error;
@@ -35,12 +59,10 @@ export async function getApps(): Promise<App[]> {
 
 export async function searchApps(term: string): Promise<App[]> {
   try {
+    // First get all matching apps
     const { data: apps, error } = await supabase
       .from('apps')
-      .select(`
-        *,
-        factors:app_factors(*)
-      `)
+      .select('*')
       .ilike('name', `%${term}%`)
       .or(`description.ilike.%${term}%,category.ilike.%${term}%,developer.ilike.%${term}%`);
 
@@ -49,16 +71,42 @@ export async function searchApps(term: string): Promise<App[]> {
       throw error;
     }
 
-    return apps.map(app => ({
-      ...app,
-      businessModel: app.business_model as BusinessModel | undefined,
-      factors: app.factors.map((factor: any) => ({
-        name: factor.name,
-        description: factor.description,
-        present: factor.present
-      })),
-      lastUpdated: app.last_updated ? new Date(app.last_updated) : undefined
+    // For each app, get its factors
+    const appsWithFactors = await Promise.all(apps.map(async (app) => {
+      const { data: factorData, error: factorError } = await supabase
+        .from('apps_rating_factors')
+        .select(`
+          rating_id,
+          is_present,
+          rating_factors(name, description)
+        `)
+        .eq('app_id', app.id);
+
+      if (factorError) {
+        console.error(`Error fetching factors for app ${app.id}:`, factorError);
+        return {
+          ...app,
+          businessModel: app.business_model as BusinessModel | undefined,
+          factors: [],
+          lastUpdated: app.last_updated ? new Date(app.last_updated) : undefined
+        };
+      }
+
+      const factors = factorData.map(factor => ({
+        name: factor.rating_factors.name,
+        description: factor.rating_factors.description,
+        present: factor.is_present
+      }));
+
+      return {
+        ...app,
+        businessModel: app.business_model as BusinessModel | undefined,
+        factors,
+        lastUpdated: app.last_updated ? new Date(app.last_updated) : undefined
+      };
     }));
+
+    return appsWithFactors;
   } catch (error) {
     console.error('Error in searchApps:', error);
     throw error;
@@ -92,22 +140,42 @@ export async function addApp(app: Omit<App, 'id'|'factors'> & { factors: { name:
 
     // Then, insert the factors
     if (app.factors && app.factors.length > 0) {
-      const factorsToInsert = app.factors.map(factor => ({
-        app_id: insertedApp.id,
-        name: factor.name,
-        description: '', // We'll need to get the description from the drugFactors or another source
-        present: factor.present
-      }));
+      // First, get the rating factor IDs
+      const { data: ratingFactors, error: ratingError } = await supabase
+        .from('rating_factors')
+        .select('id, name');
+      
+      if (ratingError) {
+        console.error('Error fetching rating factors:', ratingError);
+        throw ratingError;
+      }
+      
+      // Create a map of factor name to ID
+      const factorNameToId = ratingFactors.reduce((map, factor) => {
+        map[factor.name] = factor.id;
+        return map;
+      }, {} as Record<string, string>);
+      
+      // Create the insert data for apps_rating_factors
+      const factorsToInsert = app.factors
+        .filter(factor => factorNameToId[factor.name]) // Only include factors that exist in the DB
+        .map(factor => ({
+          app_id: insertedApp.id,
+          rating_id: factorNameToId[factor.name],
+          is_present: factor.present
+        }));
 
-      const { error: factorsError } = await supabase
-        .from('app_factors')
-        .insert(factorsToInsert);
+      if (factorsToInsert.length > 0) {
+        const { error: factorsError } = await supabase
+          .from('apps_rating_factors')
+          .insert(factorsToInsert);
 
-      if (factorsError) {
-        console.error('Error adding app factors:', factorsError);
-        // Consider deleting the app if factors insertion fails
-        await supabase.from('apps').delete().eq('id', insertedApp.id);
-        throw factorsError;
+        if (factorsError) {
+          console.error('Error adding app factors:', factorsError);
+          // Consider deleting the app if factors insertion fails
+          await supabase.from('apps').delete().eq('id', insertedApp.id);
+          throw factorsError;
+        }
       }
     }
 
@@ -124,10 +192,7 @@ export async function getAppById(id: string): Promise<App | null> {
   try {
     const { data: app, error } = await supabase
       .from('apps')
-      .select(`
-        *,
-        factors:app_factors(*)
-      `)
+      .select('*')
       .eq('id', id)
       .single();
 
@@ -138,14 +203,36 @@ export async function getAppById(id: string): Promise<App | null> {
 
     if (!app) return null;
 
+    // Get the app factors
+    const { data: factorData, error: factorError } = await supabase
+      .from('apps_rating_factors')
+      .select(`
+        rating_id,
+        is_present,
+        rating_factors(name, description)
+      `)
+      .eq('app_id', id);
+
+    if (factorError) {
+      console.error(`Error fetching factors for app ${id}:`, factorError);
+      return {
+        ...app,
+        businessModel: app.business_model as BusinessModel | undefined,
+        factors: [],
+        lastUpdated: app.last_updated ? new Date(app.last_updated) : undefined
+      };
+    }
+
+    const factors = factorData.map(factor => ({
+      name: factor.rating_factors.name,
+      description: factor.rating_factors.description,
+      present: factor.is_present
+    }));
+
     return {
       ...app,
       businessModel: app.business_model as BusinessModel | undefined,
-      factors: app.factors.map((factor: any) => ({
-        name: factor.name,
-        description: factor.description,
-        present: factor.present
-      })),
+      factors,
       lastUpdated: app.last_updated ? new Date(app.last_updated) : undefined
     };
   } catch (error) {
@@ -180,9 +267,25 @@ export async function updateApp(id: string, updates: Partial<Omit<App, 'id'|'fac
 
     // Update factors if provided
     if (updates.factors && updates.factors.length > 0) {
+      // First, get the rating factor IDs
+      const { data: ratingFactors, error: ratingError } = await supabase
+        .from('rating_factors')
+        .select('id, name');
+      
+      if (ratingError) {
+        console.error('Error fetching rating factors:', ratingError);
+        throw ratingError;
+      }
+      
+      // Create a map of factor name to ID
+      const factorNameToId = ratingFactors.reduce((map, factor) => {
+        map[factor.name] = factor.id;
+        return map;
+      }, {} as Record<string, string>);
+      
       // First, delete existing factors
       const { error: deleteError } = await supabase
-        .from('app_factors')
+        .from('apps_rating_factors')
         .delete()
         .eq('app_id', id);
 
@@ -192,20 +295,23 @@ export async function updateApp(id: string, updates: Partial<Omit<App, 'id'|'fac
       }
 
       // Then, insert updated factors
-      const factorsToInsert = updates.factors.map(factor => ({
-        app_id: id,
-        name: factor.name,
-        description: '', // We'll need to get the description from drugFactors
-        present: factor.present
-      }));
+      const factorsToInsert = updates.factors
+        .filter(factor => factorNameToId[factor.name]) // Only include factors that exist in the DB
+        .map(factor => ({
+          app_id: id,
+          rating_id: factorNameToId[factor.name],
+          is_present: factor.present
+        }));
 
-      const { error: insertError } = await supabase
-        .from('app_factors')
-        .insert(factorsToInsert);
+      if (factorsToInsert.length > 0) {
+        const { error: insertError } = await supabase
+          .from('apps_rating_factors')
+          .insert(factorsToInsert);
 
-      if (insertError) {
-        console.error(`Error inserting updated factors for app ID ${id}:`, insertError);
-        throw insertError;
+        if (insertError) {
+          console.error(`Error inserting updated factors for app ID ${id}:`, insertError);
+          throw insertError;
+        }
       }
     }
 
@@ -222,7 +328,7 @@ export async function deleteApp(id: string): Promise<void> {
   try {
     // Delete factors first (due to foreign key constraint)
     const { error: factorsError } = await supabase
-      .from('app_factors')
+      .from('apps_rating_factors')
       .delete()
       .eq('app_id', id);
 

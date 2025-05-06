@@ -26,13 +26,15 @@ const Index = () => {
     queryKey: ['apps', searchTerm],
     queryFn: () => searchTerm ? searchApps(searchTerm) : getApps(),
     retry: 1,
-    onError: (err) => {
-      console.error('Query error:', err);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to load apps. Please try again later.",
-      });
+    meta: {
+      onError: (err: any) => {
+        console.error('Query error:', err);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load apps. Please try again later.",
+        });
+      }
     }
   });
 
@@ -91,7 +93,7 @@ const Index = () => {
           ) : isError ? (
             <div className="text-center py-12 bg-red-50 rounded-lg p-6">
               <h3 className="text-xl font-medium text-red-800 mb-2">Failed to load apps</h3>
-              <p className="text-red-600">There was an error connecting to the database. Please try again later.</p>
+              <p className="text-red-600">{error instanceof Error ? error.message : 'There was an error connecting to the database. Please try again later.'}</p>
               <button 
                 className="mt-4 px-4 py-2 bg-white border border-red-300 rounded-md text-red-700 hover:bg-red-50"
                 onClick={() => window.location.reload()}

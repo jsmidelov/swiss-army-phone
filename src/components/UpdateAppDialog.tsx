@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,12 +8,12 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { AppStore, BusinessModel, DrugRating } from "@/lib/appData";
+import { App, AppStore, BusinessModel, DrugRating } from "@/lib/appData";
 import { useToast } from "@/hooks/use-toast";
-import { addApp, getAllDrugFactors } from "@/lib/supabase";
+import { updateApp, getAllDrugFactors } from "@/lib/supabase";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
+import { RefreshCcw } from "lucide-react";
 
 const businessModels: BusinessModel[] = [
   'Pay Once',
@@ -27,7 +27,7 @@ const businessModels: BusinessModel[] = [
 const stores: AppStore[] = ['Apple App Store', 'Google Play', 'Both'];
 const ratings: DrugRating[] = ['Tool', 'Sugar', 'Coffee', 'Alcohol', 'Drug'];
 
-const addAppSchema = z.object({
+const updateAppSchema = z.object({
   name: z.string().min(2, { message: "App name must be at least 2 characters." }),
   developer: z.string().min(2, { message: "Developer name is required." }),
   category: z.string().min(2, { message: "Category is required." }),
@@ -44,9 +44,14 @@ const addAppSchema = z.object({
   )
 });
 
-type FormValues = z.infer<typeof addAppSchema>;
+type FormValues = z.infer<typeof updateAppSchema>;
 
-export const AddAppDialog = () => {
+interface UpdateAppDialogProps {
+  app: App;
+  trigger?: React.ReactNode;
+}
+
+export const UpdateAppDialog = ({ app, trigger }: UpdateAppDialogProps) => {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -56,32 +61,42 @@ export const AddAppDialog = () => {
     queryFn: getAllDrugFactors
   });
   
+  // Prepare the app data for the form
+  const getDefaultValues = () => {
+    return {
+      name: app.name,
+      developer: app.developer,
+      category: app.category,
+      description: app.description || '',
+      icon: app.icon || '',
+      store: app.store,
+      rating: app.rating,
+      businessModel: app.businessModel,
+      factors: drugFactors.map(factor => {
+        const existingFactor = app.factors.find(f => f.name === factor.name);
+        return {
+          name: factor.name,
+          present: existingFactor ? existingFactor.present : false,
+        };
+      })
+    };
+  };
+  
   const form = useForm<FormValues>({
-    resolver: zodResolver(addAppSchema),
-    defaultValues: {
-      name: '',
-      developer: '',
-      category: '',
-      description: '',
-      icon: '',
-      store: 'Both',
-      rating: 'Tool',
-      factors: drugFactors.map(factor => ({
-        name: factor.name,
-        present: false,
-      }))
-    }
+    resolver: zodResolver(updateAppSchema),
+    defaultValues: getDefaultValues()
   });
 
-  // Update the factors when the drug factors are loaded
-  React.useEffect(() => {
+  // Update the form values when the app or drugFactors change
+  useEffect(() => {
     if (drugFactors.length > 0) {
-      form.setValue('factors', drugFactors.map(factor => ({
-        name: factor.name,
-        present: false,
-      })));
+      const values = getDefaultValues();
+      Object.entries(values).forEach(([key, value]) => {
+        // @ts-ignore
+        form.setValue(key, value);
+      });
     }
-  }, [drugFactors, form.setValue]);
+  }, [app, drugFactors, form.setValue]);
 
   const onSubmit = async (values: FormValues) => {
     try {
@@ -98,42 +113,55 @@ export const AddAppDialog = () => {
         factors: values.factors
       };
       
-      await addApp(appData);
+      await updateApp(app.id, appData);
       
       toast({
-        title: "App Added",
-        description: `${values.name} was added successfully.`,
+        title: "App Updated",
+        description: `${values.name} was updated successfully.`,
       });
       
       // Invalidate queries to refresh the app list
       queryClient.invalidateQueries({ queryKey: ['apps'] });
       
-      // Reset form and close dialog
-      form.reset();
+      // Close dialog
       setOpen(false);
     } catch (error) {
-      console.error('Error adding app:', error);
+      console.error('Error updating app:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to add app. Please try again.",
+        description: "Failed to update app. Please try again.",
       });
     }
+  };
+
+  const isAppOutdated = () => {
+    if (!app.lastUpdated) return true;
+    const lastUpdated = new Date(app.lastUpdated);
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+    return lastUpdated < oneMonthAgo;
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="flex items-center gap-2">
-          <Plus size={16} />
-          Add App
-        </Button>
+        {trigger || (
+          <Button 
+            variant={isAppOutdated() ? "default" : "outline"} 
+            size="sm" 
+            className="flex items-center gap-1"
+          >
+            <RefreshCcw size={14} />
+            {isAppOutdated() ? "Update Needed" : "Update"}
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add New App</DialogTitle>
+          <DialogTitle>Update {app.name}</DialogTitle>
           <DialogDescription>
-            Enter the details of the app you want to add to the database.
+            Update the details of this app in the database.
           </DialogDescription>
         </DialogHeader>
         
@@ -313,14 +341,11 @@ export const AddAppDialog = () => {
               <Button 
                 type="button" 
                 variant="outline" 
-                onClick={() => {
-                  form.reset();
-                  setOpen(false);
-                }}
+                onClick={() => setOpen(false)}
               >
                 Cancel
               </Button>
-              <Button type="submit">Add App</Button>
+              <Button type="submit">Update App</Button>
             </DialogFooter>
           </form>
         </Form>
@@ -329,4 +354,4 @@ export const AddAppDialog = () => {
   );
 };
 
-export default AddAppDialog;
+export default UpdateAppDialog;

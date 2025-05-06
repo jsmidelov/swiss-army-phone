@@ -1,113 +1,152 @@
 
 import React from 'react';
-import { App, DrugFactor } from '@/lib/appData';
+import { App } from '@/lib/appData';
+import { Button } from './ui/button';
 import DrugScaleIndicator from './DrugScaleIndicator';
 import DrugRatingIcon from './DrugRatingIcon';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { CheckCircle, XCircle, ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Check, X } from 'lucide-react';
+import UpdateAppDialog from './UpdateAppDialog';
+import BusinessModelInfo from './BusinessModelInfo';
 
 interface AppDetailProps {
-  app: App | null;
+  app: App;
   onBack: () => void;
 }
 
-const AppDetail: React.FC<AppDetailProps> = ({ app, onBack }) => {
-  if (!app) return null;
-
-  const getStoreLabel = (store: string) => {
-    switch (store) {
-      case 'Apple App Store':
-        return 'Available on Apple App Store';
-      case 'Google Play':
-        return 'Available on Google Play';
-      case 'Both':
-        return 'Available on Apple App Store & Google Play';
-      default:
-        return '';
-    }
+const AppDetail = ({ app, onBack }: AppDetailProps) => {
+  // Check if app is more than 1 month old
+  const isAppOutdated = () => {
+    if (!app.lastUpdated) return true;
+    const lastUpdated = new Date(app.lastUpdated);
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+    return lastUpdated < oneMonthAgo;
   };
 
-  const renderFactor = (factor: DrugFactor) => {
-    return (
-      <Card key={factor.name} className="p-4 mb-3 last:mb-0">
-        <div className="flex items-start">
-          <div className="flex-shrink-0 mr-3 mt-0.5">
-            {factor.present ? (
-              <CheckCircle className="h-5 w-5 text-sap-drug" />
-            ) : (
-              <XCircle className="h-5 w-5 text-sap-tool" />
-            )}
-          </div>
-          <div>
-            <h4 className="text-base font-medium mb-1">{factor.name}</h4>
-            <p className="text-sm text-gray-600">{factor.description}</p>
-          </div>
-        </div>
-      </Card>
-    );
+  const formatDate = (date: Date | undefined) => {
+    if (!date) return 'Unknown';
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }).format(date);
   };
 
   return (
-    <div className="animate-in fade-in duration-300">
-      <div className="flex items-center mb-4">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={onBack} 
-          className="mr-2"
+    <div className="bg-white rounded-lg shadow-sm border p-6">
+      <div className="flex flex-col md:flex-row justify-between">
+        <Button
+          variant="outline"
+          size="sm"
+          className="mb-4 md:mb-0 self-start"
+          onClick={onBack}
         >
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Back
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to apps
         </Button>
+        
+        <div className="flex items-center gap-2 self-start">
+          {isAppOutdated() && (
+            <div className="text-sm text-amber-600 flex items-center">
+              <span className="inline-block h-2 w-2 rounded-full bg-amber-500 mr-1"></span>
+              Data may be outdated ({formatDate(app.lastUpdated)})
+            </div>
+          )}
+          
+          <div onClick={(e) => e.stopPropagation()}>
+            <UpdateAppDialog app={app} />
+          </div>
+        </div>
       </div>
-
-      <div className="flex flex-col md:flex-row gap-6 mb-8">
-        <div className="flex-shrink-0 md:w-24">
-          <div className="w-24 h-24 rounded-2xl overflow-hidden bg-gray-100 flex items-center justify-center">
+      
+      <div className="flex flex-col md:flex-row md:items-start gap-6 mt-6">
+        <div className="flex-shrink-0">
+          <div className="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 mb-2">
             {app.icon ? (
-              <img 
-                src={app.icon} 
-                alt={`${app.name} icon`} 
-                className="w-full h-full object-cover" 
-              />
+              <img src={app.icon} alt={`${app.name} icon`} className="w-full h-full object-cover" />
             ) : (
-              <div className="text-4xl">{app.name.charAt(0)}</div>
+              <div className="w-full h-full flex items-center justify-center text-gray-400">No icon</div>
             )}
+          </div>
+          
+          <div className="flex flex-col items-center">
+            <DrugRatingIcon rating={app.rating} size="large" />
+            <span className="mt-1 font-bold text-lg">{app.rating}</span>
           </div>
         </div>
         
         <div className="flex-grow">
-          <div className="flex justify-between items-start mb-1">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold mr-3">{app.name}</h1>
-              <DrugRatingIcon rating={app.rating} size="lg" />
-            </div>
-            <DrugScaleIndicator rating={app.rating} size="lg" />
+          <h1 className="text-2xl font-bold mb-1">{app.name}</h1>
+          <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-gray-600 mb-4">
+            <span>By {app.developer}</span>
+            <span>Category: {app.category}</span>
+            <span>Available on: {app.store}</span>
           </div>
           
-          <p className="text-gray-500 mb-2">{app.developer}</p>
-          <p className="mb-2">{app.description}</p>
+          {app.description ? (
+            <p className="text-gray-700 mb-6">{app.description}</p>
+          ) : (
+            <p className="text-gray-500 italic mb-6">No description available</p>
+          )}
           
-          <div className="text-sm text-gray-500 mb-2">
-            {getStoreLabel(app.store)}
+          <div className="mb-8">
+            <h3 className="text-lg font-medium mb-3">Rating on the Tool-to-Drug Scale</h3>
+            <DrugScaleIndicator rating={app.rating} />
           </div>
-
+          
           {app.businessModel && (
-            <div className="text-sm font-medium">
-              Business Model: <span className="text-gray-700">{app.businessModel}</span>
+            <div className="mb-6">
+              <h3 className="text-lg font-medium mb-2">Business Model</h3>
+              <BusinessModelInfo businessModel={app.businessModel} />
             </div>
           )}
-        </div>
-      </div>
-
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Digital Wellbeing Factors</h2>
-        <p className="text-gray-600 mb-4">
-          These factors determine how much an app acts as a useful tool versus a habit-forming dopamine dispenser.
-        </p>
-        <div>
-          {app.factors.map(factor => renderFactor(factor))}
+          
+          <div>
+            <h3 className="text-lg font-medium mb-2">Digital Wellbeing Factors</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              These are specific features and design elements that may impact your digital wellbeing:
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {app.factors.map((factor) => (
+                <div key={factor.name} className="flex items-start">
+                  <div className={`flex-shrink-0 mt-0.5 rounded-full p-1 ${factor.present ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                    {factor.present ? (
+                      <X className="h-3 w-3" />
+                    ) : (
+                      <Check className="h-3 w-3" />
+                    )}
+                  </div>
+                  <div className="ml-2">
+                    <h4 className="text-sm font-medium">{factor.name}</h4>
+                    <p className="text-xs text-gray-600">{factor.description}</p>
+                  </div>
+                </div>
+              ))}
+              
+              {app.businessModel && app.businessModel !== 'Unknown' && (
+                <div className="flex items-start">
+                  <div className={`flex-shrink-0 mt-0.5 rounded-full p-1 ${app.businessModel === 'Pay Once' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                    {app.businessModel === 'Pay Once' ? (
+                      <Check className="h-3 w-3" />
+                    ) : (
+                      <X className="h-3 w-3" />
+                    )}
+                  </div>
+                  <div className="ml-2">
+                    <h4 className="text-sm font-medium">Business Model: {app.businessModel}</h4>
+                    <p className="text-xs text-gray-600">
+                      {app.businessModel === 'Advertising' && "App makes money by showing ads, incentivizing longer usage times to increase ad impressions."}
+                      {app.businessModel === 'In-App Purchases' && "App uses psychological triggers to encourage impulse purchases."}
+                      {app.businessModel === 'Freemium' && "App offers free basic features but uses engagement tactics to convert users to paying customers."}
+                      {app.businessModel === 'Subscription' && "App employs moderate engagement tactics to ensure you renew your subscription."}
+                      {app.businessModel === 'Pay Once' && "Pay once upfront model typically has fewer addictive design elements."}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
