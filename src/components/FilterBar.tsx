@@ -25,8 +25,8 @@ const FilterBar: React.FC<FilterBarProps> = ({
     'Both'
   ];
 
-  const ratings: (DrugRating | 'All')[] = [
-    'All',
+  // Remove "All" from the ratings array for the slider
+  const ratings: DrugRating[] = [
     'Tool',
     'Sugar',
     'Coffee',
@@ -36,11 +36,13 @@ const FilterBar: React.FC<FilterBarProps> = ({
 
   // Map rating to numeric value for the slider
   const ratingToValue = (rating: DrugRating | 'All'): number => {
+    // If "All" is selected, use the highest rating (Drug)
+    if (rating === 'All') return ratings.length - 1;
     return ratings.indexOf(rating);
   };
 
   // Map numeric value back to rating
-  const valueToRating = (value: number): DrugRating | 'All' => {
+  const valueToRating = (value: number): DrugRating => {
     return ratings[value];
   };
 
@@ -49,7 +51,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
   };
 
   return (
-    <div className="flex flex-col space-y-6 sm:space-y-4">
+    <div className="grid gap-6 sm:grid-cols-2">
       <div className="space-y-2">
         <h3 className="text-sm font-medium text-gray-700">App Store</h3>
         <div className="flex flex-wrap gap-2">
@@ -76,14 +78,14 @@ const FilterBar: React.FC<FilterBarProps> = ({
         
         <div className="px-2">
           <Slider
-            defaultValue={[ratingToValue(selectedRating)]}
+            value={[ratingToValue(selectedRating)]}
             max={ratings.length - 1}
             step={1}
             onValueChange={handleSliderChange}
             className="w-full"
           />
           
-          <div className="flex justify-between mt-2 text-xs text-gray-500">
+          <div className="flex justify-between mt-1 text-xs text-gray-500">
             {ratings.map((rating, index) => (
               <div 
                 key={rating} 

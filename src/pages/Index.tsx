@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { App, AppStore, DrugRating } from '@/lib/appData';
 import AppCard from '@/components/AppCard';
@@ -14,7 +13,7 @@ const Index = () => {
   const [selectedApp, setSelectedApp] = useState<App | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStore, setSelectedStore] = useState<AppStore | 'All'>('All');
-  const [selectedRating, setSelectedRating] = useState<DrugRating | 'All'>('All');
+  const [selectedRating, setSelectedRating] = useState<DrugRating>('Drug');
   const { toast } = useToast();
 
   const { 
@@ -38,9 +37,25 @@ const Index = () => {
     }
   });
 
+  // Get the numeric value of the selected rating for comparison
+  const getRatingValue = (rating: DrugRating): number => {
+    const ratings: DrugRating[] = ['Tool', 'Sugar', 'Coffee', 'Alcohol', 'Drug'];
+    return ratings.indexOf(rating);
+  };
+
+  // Get the numeric value of the selected rating
+  const selectedRatingValue = getRatingValue(selectedRating);
+
   const filteredApps = apps.filter(app => {
+    // Filter by store if not "All"
     if (selectedStore !== 'All' && app.store !== selectedStore) return false;
-    if (selectedRating !== 'All' && app.rating !== selectedRating) return false;
+    
+    // Filter apps with higher rating value than selected
+    if (app.rating !== 'All') {
+      const appRatingValue = getRatingValue(app.rating as DrugRating);
+      if (appRatingValue > selectedRatingValue) return false;
+    }
+    
     return true;
   });
 
