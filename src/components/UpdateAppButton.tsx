@@ -1,14 +1,14 @@
 
 import React from 'react';
+import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { App } from '@/lib/appData';
 
-interface UpdateAppDialogProps {
+interface UpdateAppButtonProps {
   app: App;
 }
 
-const UpdateAppDialog = ({ app }: UpdateAppDialogProps) => {
+const UpdateAppButton = ({ app }: UpdateAppButtonProps) => {
   const navigate = useNavigate();
   
   return (
@@ -25,4 +25,4 @@ const UpdateAppDialog = ({ app }: UpdateAppDialogProps) => {
   );
 };
 
-export default UpdateAppDialog;
+export default UpdateAppButton;

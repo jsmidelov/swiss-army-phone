@@ -5,7 +5,7 @@ import { Button } from './ui/button';
 import DrugScaleIndicator from './DrugScaleIndicator';
 import DrugRatingIcon from './DrugRatingIcon';
 import { ArrowLeft, Check, X } from 'lucide-react';
-import UpdateAppDialog from './UpdateAppDialog';
+import UpdateAppButton from './UpdateAppButton';
 
 interface AppDetailProps {
   app: App;
@@ -53,7 +53,7 @@ const AppDetail = ({ app, onBack }: AppDetailProps) => {
           )}
           
           <div onClick={(e) => e.stopPropagation()}>
-            <UpdateAppDialog app={app} />
+            <UpdateAppButton app={app} />
           </div>
         </div>
       </div>

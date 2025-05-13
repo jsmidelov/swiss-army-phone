@@ -8,7 +8,7 @@ import FilterBar from '@/components/FilterBar';
 import { useQuery } from '@tanstack/react-query';
 import { getApps, searchApps } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
-import AddAppDialog from '@/components/AddAppDialog';
+import AddAppButton from '@/components/AddAppButton';
 
 const Index = () => {
   const [selectedApp, setSelectedApp] = useState<App | null>(null);
@@ -85,7 +85,7 @@ const Index = () => {
           <div className="mb-8 grid gap-6 sm:grid-cols-2">
             <SearchBar value={searchTerm} onChange={setSearchTerm} />
             <div className="flex justify-between items-center">
-              <AddAppDialog />
+              <AddAppButton />
               <p className="text-sm text-gray-500 self-end">
                 {isLoading ? 'Loading...' : `Showing ${filteredApps.length} ${filteredApps.length === 1 ? 'app' : 'apps'}`}
               </p>
@@ -95,7 +95,7 @@ const Index = () => {
                 selectedStore={selectedStore}
                 selectedRating={selectedRating}
                 onStoreChange={setSelectedStore}
-                onRatingChange={setSelectedRating}
+                onRatingChange={(rating) => setSelectedRating(rating as DrugRating)}
               />
             </div>
           </div>

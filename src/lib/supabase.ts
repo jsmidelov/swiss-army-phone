@@ -191,7 +191,7 @@ export async function addApp(app: Omit<App, 'id'|'factors'> & { factors: { name:
 export async function getAppById(id: string): Promise<App | null> {
   try {
     // Use the database function to get app details with factors
-    const { data: appDetails, error } = await supabase
+    const { data, error } = await supabase
       .rpc('get_app_details_by_id', {
         app_id: id
       });
@@ -201,27 +201,23 @@ export async function getAppById(id: string): Promise<App | null> {
       throw error;
     }
 
-    if (!appDetails || appDetails.length === 0) return null;
+    if (!data || data.length === 0) return null;
     
     // Process the first row from the app details
-    const appData = appDetails[0];
+    const appData = data[0];
     
     // Transform the data to match the App interface
     const app: App = {
       id: appData.id,
       name: appData.name,
       icon: appData.icon,
-      store: appData.store as any,
-      rating: appData.rating as any,
+      store: appData.store,
+      rating: appData.rating,
       description: appData.description,
       category: appData.category,
       developer: appData.developer,
-      businessModel: appData.businessmodel as BusinessModel | undefined,
-      factors: appData.factors.map((factor: any) => ({
-        name: factor.name,
-        description: factor.description,
-        present: factor.present
-      })),
+      businessModel: appData.businessmodel,
+      factors: appData.factors || [],
       lastUpdated: undefined // We'll need to add this field to our function if needed
     };
 
