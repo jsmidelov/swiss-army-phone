@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { App, AppStore, DrugRating } from '@/lib/appData';
 import AppCard from '@/components/AppCard';
@@ -51,10 +52,8 @@ const Index = () => {
     if (selectedStore !== 'All' && app.store !== selectedStore) return false;
     
     // Filter apps with higher rating value than selected
-    if (app.rating !== 'All') {
-      const appRatingValue = getRatingValue(app.rating as DrugRating);
-      if (appRatingValue > selectedRatingValue) return false;
-    }
+    const appRatingValue = getRatingValue(app.rating as DrugRating);
+    if (appRatingValue > selectedRatingValue) return false;
     
     return true;
   });

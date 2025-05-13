@@ -187,54 +187,45 @@ export async function addApp(app: Omit<App, 'id'|'factors'> & { factors: { name:
   }
 }
 
-// Get a single app by ID
+// Get a single app by ID using the database function
 export async function getAppById(id: string): Promise<App | null> {
   try {
-    const { data: app, error } = await supabase
-      .from('apps')
-      .select('*')
-      .eq('id', id)
-      .single();
+    // Use the database function to get app details with factors
+    const { data: appDetails, error } = await supabase
+      .rpc('get_app_details_by_id', {
+        app_id: id
+      });
 
     if (error) {
       console.error(`Error fetching app with ID ${id}:`, error);
       throw error;
     }
 
-    if (!app) return null;
-
-    // Get the app factors
-    const { data: factorData, error: factorError } = await supabase
-      .from('apps_rating_factors')
-      .select(`
-        rating_id,
-        is_present,
-        rating_factors(name, description)
-      `)
-      .eq('app_id', id);
-
-    if (factorError) {
-      console.error(`Error fetching factors for app ${id}:`, factorError);
-      return {
-        ...app,
-        businessModel: app.business_model as BusinessModel | undefined,
-        factors: [],
-        lastUpdated: app.last_updated ? new Date(app.last_updated) : undefined
-      };
-    }
-
-    const factors = factorData.map(factor => ({
-      name: factor.rating_factors.name,
-      description: factor.rating_factors.description,
-      present: factor.is_present
-    }));
-
-    return {
-      ...app,
-      businessModel: app.business_model as BusinessModel | undefined,
-      factors,
-      lastUpdated: app.last_updated ? new Date(app.last_updated) : undefined
+    if (!appDetails || appDetails.length === 0) return null;
+    
+    // Process the first row from the app details
+    const appData = appDetails[0];
+    
+    // Transform the data to match the App interface
+    const app: App = {
+      id: appData.id,
+      name: appData.name,
+      icon: appData.icon,
+      store: appData.store as any,
+      rating: appData.rating as any,
+      description: appData.description,
+      category: appData.category,
+      developer: appData.developer,
+      businessModel: appData.businessmodel as BusinessModel | undefined,
+      factors: appData.factors.map((factor: any) => ({
+        name: factor.name,
+        description: factor.description,
+        present: factor.present
+      })),
+      lastUpdated: undefined // We'll need to add this field to our function if needed
     };
+
+    return app;
   } catch (error) {
     console.error('Error in getAppById:', error);
     throw error;
