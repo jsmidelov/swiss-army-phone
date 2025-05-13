@@ -1,6 +1,6 @@
 
 import { createClient } from '@supabase/supabase-js';
-import { App, BusinessModel } from './appData';
+import { App, BusinessModel, DrugRating, AppStore } from './appData';
 import { supabase } from '@/integrations/supabase/client';
 
 export async function getApps(): Promise<App[]> {
@@ -206,19 +206,25 @@ export async function getAppById(id: string): Promise<App | null> {
     // Process the first row from the app details
     const appData = data[0];
     
-    // Transform the data to match the App interface
+    // Transform the data to match the App interface with proper type casting
     const app: App = {
       id: appData.id,
       name: appData.name,
       icon: appData.icon,
-      store: appData.store,
-      rating: appData.rating,
+      store: appData.store as AppStore, // Cast to AppStore type
+      rating: appData.rating as DrugRating, // Cast to DrugRating type
       description: appData.description,
       category: appData.category,
       developer: appData.developer,
-      businessModel: appData.businessmodel,
-      factors: appData.factors || [],
-      lastUpdated: undefined // We'll need to add this field to our function if needed
+      businessModel: appData.businessmodel as BusinessModel | undefined, // Cast to BusinessModel
+      factors: Array.isArray(appData.factors) 
+        ? appData.factors.map((factor: any) => ({
+            name: factor.name as string,
+            description: factor.description as string,
+            present: Boolean(factor.present)
+          }))
+        : [],
+      lastUpdated: appData.last_updated ? new Date(appData.last_updated) : undefined
     };
 
     return app;
