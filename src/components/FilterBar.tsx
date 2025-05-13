@@ -63,7 +63,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
             >
               {store === 'Apple App Store' ? '🍎 App Store' : 
                store === 'Google Play' ? '🤖 Google Play' : 
-               store === 'Both' ? 'Both' : 'All'}
+               store === 'Both' ? '🍎🤖 Both' : 'All'}
             </Button>
           ))}
         </div>
