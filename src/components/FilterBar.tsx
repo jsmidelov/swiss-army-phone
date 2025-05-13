@@ -2,7 +2,6 @@
 import React from 'react';
 import { AppStore, DrugRating } from '@/lib/appData';
 import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
 import { SlidersHorizontal } from 'lucide-react';
 
 interface FilterBarProps {
@@ -77,25 +76,13 @@ const FilterBar: React.FC<FilterBarProps> = ({
         </div>
         
         <div className="px-2">
-          <Slider
-            value={[ratingToValue(selectedRating)]}
-            max={ratings.length - 1}
-            step={1}
-            onValueChange={handleSliderChange}
-            className="w-full"
-          />
-          
-          <div className="flex justify-between mt-1 text-xs text-gray-500">
+          <input className='w-full' type="range" step={1} id="temp" min="0" max={ratings.length - 1} onChange={(e) => handleSliderChange([Number(e.target.value)])} value={ratingToValue(selectedRating)} name="temp" list="markers" />
+
+          <datalist id="markers" className='w-full' style={{ display: "flex", justifyContent: "space-between", accentColor: "hsl(var(--primary))" }}>
             {ratings.map((rating, index) => (
-              <div 
-                key={rating} 
-                className={`flex flex-col items-center ${selectedRating === rating ? "font-medium text-primary" : ""}`}
-                style={{ width: `${100 / (ratings.length - 1)}%`, marginLeft: index === 0 ? '0' : '-10px' }}
-              >
-                <span>{rating}</span>
-              </div>
+              <option key={rating} value={index} label={rating}>{rating}</option>
             ))}
-          </div>
+          </datalist>
         </div>
       </div>
     </div>
