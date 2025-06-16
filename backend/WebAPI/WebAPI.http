@@ -1,0 +1,6 @@
+@SwissArmyPhone.WebAPI_HostAddress = http://localhost:5262
+
+GET {{SwissArmyPhone.WebAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
